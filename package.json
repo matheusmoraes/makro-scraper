@@ -1,0 +1,13 @@
+{
+  "name": "makro-scraper",
+  "version": "1.0.0",
+  "description": "Food web scraper for MyFitnessPal",
+  "main": "index.js",
+  "author": "Matheus Negrao",
+  "license": "MIT",
+  "dependencies": {
+    "lodash": "^4.17.10",
+    "puppeteer": "^1.5.0",
+    "standard": "^11.0.1"
+  }
+}
