@@ -1,12 +1,18 @@
+const path = require('path')
 const puppeteer = require('puppeteer')
 const { zipObject } = require('lodash')
 
+const ublockPath = path.join(__dirname, 'bin/uBlock0.chromium')
 const BASE_URL = 'https://www.myfitnesspal.com.br'
 
 const start = async (foodName) => {
   const SEARCH_URL = `${BASE_URL}/en/food/search`
   const browser = await puppeteer.launch({
-    headless: false
+    headless: false,
+    args: [
+      `--disable-extensions-except=${ublockPath}`,
+      `--load-extension=${ublockPath}`
+    ]
   })
   const page = await browser.newPage()
 
@@ -32,8 +38,12 @@ const start = async (foodName) => {
   console.log('Links: ')
   console.log(links.join('\n'))
 
-  const mainLink = links[0]
+  for (let link of links) {
+    await getFoodInfo(page, link)
+  }
+}
 
+async function getFoodInfo (page, mainLink) {
   // Step 2
   await page.waitFor(2 * 1000)
   console.log('Vai abrir detalhes', mainLink)
