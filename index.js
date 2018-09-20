@@ -1,12 +1,10 @@
 const path = require('path')
 const puppeteer = require('puppeteer')
-const { zipObject } = require('lodash')
-
 const ublockPath = path.join(__dirname, 'bin/uBlock0.chromium')
-const BASE_URL = 'https://www.myfitnesspal.com.br'
+const { zipObject } = require('lodash')
+const FoodSearchScraper = require('./scraper/food-search')
 
 const start = async (foodName) => {
-  const SEARCH_URL = `${BASE_URL}/en/food/search`
   const browser = await puppeteer.launch({
     headless: false,
     args: [
@@ -15,28 +13,8 @@ const start = async (foodName) => {
     ]
   })
   const page = await browser.newPage()
-
-  await page.goto(SEARCH_URL)
-
-  await page.click('#search')
-  await page.keyboard.type(foodName)
-
-  await page.evaluate(() => {
-    const searchForm = document.querySelector('form[action="/en/food/search"]')
-    searchForm.submit()
-  })
-
-  await page.waitForSelector('#main > #new_food_list > ul.food_search_results')
-
-  // Get links from page
-  const links = await page.evaluate(() => {
-    const selector = Array.from(document.querySelectorAll('ul.food_search_results > li'))
-    const anchors = selector.map(line => line.querySelector('a'))
-    return anchors.map(anchor => anchor.href)
-  })
-
-  console.log('Links: ')
-  console.log(links.join('\n'))
+  const foodSearchScraper = new FoodSearchScraper(page)
+  const links = await foodSearchScraper.search(foodName)
 
   for (let link of links) {
     await getFoodInfo(page, link)
