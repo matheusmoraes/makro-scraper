@@ -19,14 +19,26 @@ class NutritionalFactsScraper {
       timeout: 300000
     })
     console.log('Abriu detalhes')
-    const nutritionFacts = await this.page.evaluate(_evaluateNutritionalFacts)
 
-    const nutritionFactsFormatted = zipObject(
-      nutritionFacts.nutrients,
-      nutritionFacts.values
-    )
+    const servingOptions = await this.page.evaluate(() => {
+      const options = Array.from(document
+        .querySelectorAll('#food_entry_weight_id > option'))
+      return options.map(option => option.value)
+    })
 
-    console.log('Facts: ', nutritionFactsFormatted)
+    for (let servingOption of servingOptions) {
+      await this.page.select('#food_entry_weight_id', servingOption)
+      await this.page.waitFor(1000)
+
+      const nutritionFacts = await this.page.evaluate(_evaluateNutritionalFacts)
+
+      const nutritionFactsFormatted = zipObject(
+        nutritionFacts.nutrients,
+        nutritionFacts.values
+      )
+
+      console.log(`FACTS\nServing: ${nutritionFacts.servingQuantity} x ${nutritionFacts.servingWeight}`, nutritionFactsFormatted, '\n\n')
+    }
   }
 }
 
