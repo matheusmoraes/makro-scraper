@@ -14,11 +14,9 @@ class NutritionalFactsScraper {
 
   async getFoodInfo (link) {
     await this.page.waitFor(2 * 1000)
-    console.log('Vai abrir detalhes', link)
     await this.page.goto(link, {
       timeout: 300000
     })
-    console.log('Abriu detalhes')
 
     const servingOptions = await this.page.evaluate(() => {
       const options = Array.from(document

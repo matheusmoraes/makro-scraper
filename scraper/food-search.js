@@ -19,15 +19,11 @@ class FoodSearchScraper {
 
     await this.page.waitForSelector('#main > #new_food_list > ul.food_search_results')
 
-    // Get links from page
     const links = await this.page.evaluate(() => {
       const selector = Array.from(document.querySelectorAll('ul.food_search_results > li'))
       const anchors = selector.map(line => line.querySelector('a'))
       return anchors.map(anchor => anchor.href)
     })
-
-    console.log('Links: ')
-    console.log(links.join('\n'))
 
     return links
   }
