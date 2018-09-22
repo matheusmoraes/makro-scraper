@@ -7,7 +7,7 @@ class NutritionalFactsScraper {
   }
 
   async run () {
-    for (let link of this.links) {
+    for (let link of [this.links[0]]) {
       await this.getFoodInfo(link)
     }
   }
@@ -18,12 +18,23 @@ class NutritionalFactsScraper {
       timeout: 300000
     })
 
+    // 0 - brand, 1 - name
+    const foodDescription = await this.page.evaluate(() => {
+      return document.querySelector('.food-description').textContent
+    })
+
+    console.log(foodDescription)
+
     const servingOptions = await this.page.evaluate(() => {
       const options = Array.from(document
         .querySelectorAll('#food_entry_weight_id > option'))
       return options.map(option => option.value)
     })
 
+    await this.scrapeServingOptions(servingOptions)
+  }
+
+  async scrapeServingOptions (servingOptions) {
     for (let servingOption of servingOptions) {
       await this.page.select('#food_entry_weight_id', servingOption)
       await this.page.waitFor(1000)
